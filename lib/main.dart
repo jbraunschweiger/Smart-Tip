@@ -15,19 +15,16 @@ class MyApp extends StatefulWidget {
 class HomePage extends State<MyApp> {
   double subtotal;
   double restaurantPrice = 0.0;
-  String currencySymbol = "#";
-  TextEditingController moneyFormatter;
+  static String _locale = Intl.getCurrentLocale();
+  static String currencySymbol = NumberFormat.simpleCurrency(locale: _locale).currencySymbol;
+  TextEditingController moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
 
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: 'Flutter',
       builder: (context, navigator) {
-        Locale locale= Localizations.localeOf(context);
-        currencySymbol = NumberFormat.simpleCurrency(locale: locale.toString()).currencySymbol;
-        moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
         return new Container(
           child: navigator
         );
@@ -55,7 +52,7 @@ class HomePage extends State<MyApp> {
                       Flexible(
                           flex: 1,
                           child: Slider(
-                            activeColor: Colors.indigoAccent,
+                            activeColor: Colors.teal,
                             min: 0.0,
                             max: 10.0,
                             value: restaurantPrice,
