@@ -1,0 +1,4 @@
+#Sun May 26 09:52:05 PDT 2019
+base.0=/home/samuel/Documents/Projects/Smart-Tip/build/app/intermediates/transforms/dexMerger/debug/0
+path.0=classes.dex
+renamed.0=classes.dex
