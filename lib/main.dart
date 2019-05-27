@@ -39,7 +39,7 @@ class HomePage extends State<MyApp> {
       position = p;
       getCountryCode().then((c) {
         country = c;
-        currencySymbol = NumberFormat.simpleCurrency(name: country).currencySymbol;
+        currencySymbol = NumberFormat.simpleCurrency(locale: country).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
       });
     });
@@ -51,7 +51,7 @@ class HomePage extends State<MyApp> {
       position = p;
       getCountryCode().then((c) {
         country = c;
-        currencySymbol = NumberFormat.simpleCurrency(name: country).currencySymbol;
+        currencySymbol = NumberFormat.simpleCurrency(locale: country).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
       });
     });
