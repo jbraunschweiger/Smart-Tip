@@ -1,32 +1,31 @@
 
 import 'package:flutter/services.dart';
 
-class helper {
-  String _countryDataSet = "";
-  String _localeData = "";
+class Helper {
+  static String _countryDataSet = "";
+  static String _localeData = "";
 
-  Future<String> loadAsset(String path) async {
+  static Future<String> loadAsset(String path) async {
     return await rootBundle.loadString(path);
   }
 
-  void _loadCountries() {
+  static void loadCountries() {
     print("starting");
     loadAsset('assets/res/countries.csv').then((dynamic output) {
       _countryDataSet = output;
     });
   }
 
-  void _loadLocales() {
+  static void loadLocales() {
     print("starting");
     loadAsset('assets/res/fucking_locales.csv').then((dynamic output) {
       _localeData = output;
     });
   }
 
-  List<String> getCountryData(String countryCode){
+  static List<String> getCountryData(String countryCode){
     List<String> toReturn = new List();
-    print("([^,]{1,})");
-    RegExp exp = new RegExp("(${"US"}.{1,})");
+    RegExp exp = new RegExp("($countryCode.{1,})");
     Iterable<Match> matches = exp.allMatches(_countryDataSet);
     String substring = "";
     for(Match s in matches){
@@ -40,12 +39,12 @@ class helper {
     return toReturn;
   }
 
-  String getLocale(String countryCode){
+  static String getLocale(String countryCode){
     String toReturn = "";
-    print("([^,]{1,})");
-    RegExp exp = new RegExp("(${"US"}.{1,})");
+    RegExp exp = new RegExp("($countryCode.{1,})");
     Iterable<Match> matches = exp.allMatches(_localeData);
     String substring = "";
+    print("Data: " + _localeData);
     for(Match s in matches){
       substring = _localeData.substring(s.start,s.end);
     }
@@ -57,7 +56,7 @@ class helper {
     return toReturn;
   }
 
-  double getTip(int happiness, List<String> data){
+  static double getTip(int happiness, List<String> data){
     double tipRate = double.parse(data[2]);
     int hasData = int.parse(data[3]);
     int expected = int.parse(data[1]);
@@ -74,14 +73,5 @@ class helper {
     double variance = tipRate/7;
     tipRate += variance * happiness;
     return tipRate;
-  }
-
-  void _testTax(){
-    List data = new List<String>();
-    data.add("US");
-    data.add("0");
-    data.add("17.5");
-    data.add("0");
-    print(getTip(-1, data));
   }
 }

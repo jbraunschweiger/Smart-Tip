@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
+import 'helper.dart';
 
 void main(){
   runApp(MyApp());
@@ -17,7 +18,8 @@ class MyApp extends StatefulWidget {
 class HomePage extends State<MyApp> {
   double subtotal;
   double restaurantPrice = 0.0;
-  static String country = "US";
+  static String countryCode = "US";
+  static List<String> countryData;
   static String currencySymbol = "\$";
   TextEditingController moneyFormatter;
   var satisfactionFlex = [3, 4, 3, 3];
@@ -35,11 +37,15 @@ class HomePage extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    Helper.loadCountries();
+    Helper.loadLocales();
     getPosition().then((p) {
       position = p;
-      getCountryCode().then((c) {
-        country = c;
-        currencySymbol = NumberFormat.simpleCurrency(locale: country).currencySymbol;
+      getCountryCode().then((cc) {
+        countryCode = cc;
+        countryData = Helper.getCountryData(countryCode);
+        var _locale = Helper.getLocale(countryCode);
+        currencySymbol = NumberFormat.simpleCurrency(locale: _locale).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
       });
     });
@@ -49,13 +55,16 @@ class HomePage extends State<MyApp> {
   Widget build(BuildContext context) {
     getPosition().then((p) {
       position = p;
-      getCountryCode().then((c) {
-        country = c;
-        currencySymbol = NumberFormat.simpleCurrency(locale: country).currencySymbol;
+      getCountryCode().then((cc) {
+        countryCode = cc;
+        countryData = Helper.getCountryData(countryCode);
+        var _locale = Helper.getLocale(countryCode);
+        print("Country code is: " + countryCode);
+        print("Locale is: " + _locale);
+        currencySymbol = NumberFormat.simpleCurrency(locale: _locale).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
       });
     });
-    print(position);
     return MaterialApp(
       title: 'Flutter',
       home: Scaffold(
@@ -177,7 +186,6 @@ class HomePage extends State<MyApp> {
       return "US";
     }
     List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
-    print(placemark[0].isoCountryCode);
     return placemark[0].isoCountryCode;
   }
 }
