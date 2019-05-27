@@ -17,7 +17,7 @@ class MyApp extends StatefulWidget {
 class HomePage extends State<MyApp> {
   double subtotal;
   double restaurantPrice = 0.0;
-  static String _locale = "en-FR";
+  static String country = "US";
   static String currencySymbol = "\$";
   TextEditingController moneyFormatter;
   var satisfactionFlex = [3, 4, 3, 3];
@@ -37,9 +37,9 @@ class HomePage extends State<MyApp> {
     super.initState();
     getPosition().then((p) {
       position = p;
-      getLocale().then((l) {
-        _locale = l;
-        currencySymbol = NumberFormat.simpleCurrency(locale: _locale).currencySymbol;
+      getCountryCode().then((c) {
+        country = c;
+        currencySymbol = NumberFormat.simpleCurrency(name: country).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
       });
     });
@@ -47,11 +47,12 @@ class HomePage extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    Intl.
     getPosition().then((p) {
       position = p;
-      getLocale().then((l) {
-        _locale = l;
-        currencySymbol = NumberFormat.simpleCurrency(locale: _locale).currencySymbol;
+      getCountryCode().then((c) {
+        country = c;
+        currencySymbol = NumberFormat.simpleCurrency(name: country).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
       });
     });
@@ -172,12 +173,14 @@ class HomePage extends State<MyApp> {
     HapticFeedback.heavyImpact();
   }
 
-  Future<String> getLocale() async{
+  Future<String> getLocale() async
+
+  Future<String> getCountryCode() async{
     if (position == null) {
-      return "en-FR";
+      return "US";
     }
     List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
     print(placemark[0].isoCountryCode);
-    return "en-FR";
+    return placemark[0].isoCountryCode;
   }
 }
