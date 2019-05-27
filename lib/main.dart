@@ -16,17 +16,16 @@ class MyApp extends StatefulWidget {
 }
 
 class HomePage extends State<MyApp> {
-  double subtotal;
-  double tipPercent;
-  double tip;
-  double total;
+  double subtotal = 0.0;
   double restaurantPrice = 0.0;
   static String countryCode = "US";
+  static String _locale = "en-US";
   static List<String> countryData;
   static String currencySymbol = "\$";
   MoneyMaskedTextController moneyFormatter;
+  NumberFormat textMoneyFormatter;
   var satisfactionFlex = [3, 4, 3, 3];
-  static int happiness;
+  static int happiness = 2;
 
   Geolocator geolocator = Geolocator();
   Position position;
@@ -48,11 +47,17 @@ class HomePage extends State<MyApp> {
       getCountryCode().then((cc) {
         countryCode = cc;
         countryData = Helper.getCountryData(countryCode);
-        var _locale = Helper.getLocale(countryCode);
-        currencySymbol = NumberFormat.simpleCurrency(locale: _locale).currencySymbol;
-        moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
+        _locale = Helper.getLocale(countryCode);
+        textMoneyFormatter = NumberFormat.simpleCurrency(locale: _locale);
+        currencySymbol = textMoneyFormatter.currencySymbol;
+        moneyFormatter = MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
         moneyFormatter.addListener((){
-          subtotal = moneyFormatter.numberValue;
+          this.setState(() {
+            subtotal = moneyFormatter.numberValue;
+          });
+        });
+        this.setState((){
+
         });
       });
     });
@@ -60,9 +65,11 @@ class HomePage extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: 'Flutter',
       home: Scaffold(
+        resizeToAvoidBottomPadding: false,
         body: Container(
           margin: const EdgeInsets.only(left: 20.0, right: 20.0),
           child: Center(
@@ -72,7 +79,7 @@ class HomePage extends State<MyApp> {
                 TextField(
                   keyboardType: TextInputType.number,
                   controller: moneyFormatter,
-                  decoration: new InputDecoration(
+                  decoration: InputDecoration(
                     labelText: "Enter Subtotal",
                     fillColor: Colors.white,
                   ),
@@ -162,7 +169,10 @@ class HomePage extends State<MyApp> {
                   ]
                 ),
                 Text(
-                  "Tip: " + subtotal.toString()
+                  "Tip: " + getTip()
+                ),
+                Text(
+                    "Total: " + getTotal()
                 )
               ],
             ),
@@ -180,8 +190,27 @@ class HomePage extends State<MyApp> {
     HapticFeedback.heavyImpact();
   }
 
-  void getTip() {
-
+  double getTipNumber() {
+    if (countryData != null) {
+      double tipPercent = Helper.getTip(happiness, countryData) / 100;
+      return subtotal * tipPercent;
+    }
+    return subtotal * .15;
+  }
+  String getTip() {
+    if (textMoneyFormatter != null) {
+      return textMoneyFormatter.format(getTipNumber());
+    }
+    return getTipNumber().toString();
+  }
+  double getTotalNumber() {
+    return getTipNumber() + subtotal;
+  }
+  String getTotal() {
+    if (textMoneyFormatter != null) {
+      return textMoneyFormatter.format(getTotalNumber());
+    }
+    return getTotalNumber().toString();
   }
 
   Future<String> getCountryCode() async{
