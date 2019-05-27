@@ -5,9 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'helper.dart';
 
-void main(){
+void main() {
   runApp(MyApp());
 }
+
 class MyApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -32,11 +33,13 @@ class HomePage extends State<MyApp> {
 
   Future<Position> getPosition() async {
     try {
-      return await geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+      return await geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best);
     } catch (e) {
       return null;
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -50,139 +53,139 @@ class HomePage extends State<MyApp> {
         _locale = Helper.getLocale(countryCode);
         textMoneyFormatter = NumberFormat.simpleCurrency(locale: _locale);
         currencySymbol = textMoneyFormatter.currencySymbol;
-        moneyFormatter = MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
-        moneyFormatter.addListener((){
+        moneyFormatter = MoneyMaskedTextController(
+            decimalSeparator: '.',
+            thousandSeparator: ',',
+            leftSymbol: currencySymbol);
+        moneyFormatter.addListener(() {
           this.setState(() {
             subtotal = moneyFormatter.numberValue;
           });
         });
-        this.setState((){
-
-        });
+        this.setState(() {});
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
+    Color primary = Colors.white;
+    Color accent = Colors.blue;
+    double defaultFontSize = 28;
     return MaterialApp(
-      title: 'Flutter',
-      home: Scaffold(
-        resizeToAvoidBottomPadding: false,
-        body: Container(
-          margin: const EdgeInsets.only(left: 20.0, right: 20.0),
-          child: Center(
-            child: Column (
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextField(
-                  keyboardType: TextInputType.number,
-                  controller: moneyFormatter,
-                  decoration: InputDecoration(
-                    labelText: "Enter Subtotal",
-                    fillColor: Colors.white,
+        title: 'Flutter',
+        home: Scaffold(
+          resizeToAvoidBottomPadding: false,
+          body: Container(
+              decoration:
+                  BoxDecoration(color: Color.fromARGB(255, 210, 220, 230)),
+              child: Container(
+                margin: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextField(
+                        keyboardType: TextInputType.number,
+                        controller: moneyFormatter,
+                        cursorWidth: 0,
+
+                        style: TextStyle(fontSize: defaultFontSize),
+                        decoration: InputDecoration(
+                          labelText: "Enter Subtotal",
+                          fillColor: Colors.white,
+                          border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(25.0),
+                            borderSide: new BorderSide(
+                            ),
+                          ),
+                        ),
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Flexible(
+                                flex: satisfactionFlex[0],
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        satisfactionFlex = [4, 3, 3, 3];
+                                        happiness = -2;
+                                        vibrate();
+                                      });
+                                    },
+                                    child:
+                                        Image.asset("graphics/unhappy.png"))),
+                            Flexible(flex: 1, child: Container()),
+                            Flexible(
+                                flex: satisfactionFlex[1],
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        satisfactionFlex = [3, 4, 3, 3];
+                                        happiness = -1;
+                                        vibrate();
+                                      });
+                                    },
+                                    child:
+                                        Image.asset("graphics/confused.png"))),
+                            Flexible(flex: 1, child: Container()),
+                            Flexible(
+                                flex: satisfactionFlex[2],
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        satisfactionFlex = [3, 3, 4, 3];
+                                        happiness = 1;
+                                        vibrate();
+                                      });
+                                    },
+                                    child:
+                                        Image.asset("graphics/smiling.png"))),
+                            Flexible(flex: 1, child: Container()),
+                            Flexible(
+                                flex: satisfactionFlex[3],
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        satisfactionFlex = [3, 3, 3, 4];
+                                        happiness = 2;
+                                        vibrate();
+                                      });
+                                    },
+                                    child: Image.asset("graphics/in-love.png")))
+                          ]),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Tip', style: TextStyle(color: accent, fontSize: defaultFontSize)),
+                                  Text(getTip(), style: TextStyle(color: primary, fontSize: defaultFontSize)),
+                                ]),
+                            Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Total', style: TextStyle(color: accent, fontSize: defaultFontSize)),
+                                  Text(getTotal(), style: TextStyle(color: primary, fontSize: defaultFontSize)),
+                                ]),
+                          ])
+                    ],
                   ),
                 ),
-                Row (
-                    children: [
-                      Text (
-                          currencySymbol
-                      ),
-                      Flexible(
-                          flex: 1,
-                          child: Slider(
-                            activeColor: Colors.teal,
-                            min: 0.0,
-                            max: 10.0,
-                            value: restaurantPrice,
-                            onChanged: (double value) {
-                              setState(() {
-                                restaurantPrice = value;
-                              });
-                            },
-                          )
-                      ),
-                      Text (
-                          currencySymbol + currencySymbol + currencySymbol
-                      ),
-                    ]
-                ),
-                Row (
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Flexible(
-                      flex: satisfactionFlex[0],
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            satisfactionFlex = [4, 3, 3, 3];
-                            happiness = -2;
-                            vibrate();
-                          });
-                        },
-                        child: Image.asset("graphics/unhappy.png")
-                      )
-                    ),
-                    Flexible(flex: 1, child: Container()),
-                    Flexible(
-                        flex: satisfactionFlex[1],
-                        child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                satisfactionFlex = [3, 4, 3, 3];
-                                happiness = -1;
-                                vibrate();
-                              });
-                            },
-                            child: Image.asset("graphics/confused.png")
-                        )
-                    ),
-                    Flexible(flex: 1, child: Container()),
-                    Flexible(
-                        flex: satisfactionFlex[2],
-                        child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                satisfactionFlex = [3, 3, 4, 3];
-                                happiness = 1;
-                                vibrate();
-                              });
-                            },
-                            child: Image.asset("graphics/smiling.png")
-                        )
-                    ),
-                    Flexible(flex: 1, child: Container()),
-                    Flexible(
-                        flex: satisfactionFlex[3],
-                        child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                satisfactionFlex = [3, 3, 3, 4];
-                                happiness = 2;
-                                vibrate();
-                              });
-                            },
-                            child: Image.asset("graphics/in-love.png")
-                        )
-                    )
-                  ]
-                ),
-                Text(
-                  "Tip: " + getTip()
-                ),
-                Text(
-                    "Total: " + getTotal()
-                )
-              ],
-            ),
-          ),
+              )),
         ),
-      ),
-      theme: ThemeData(
-          primarySwatch: Colors.teal
-      ),
-    );
+        theme: ThemeData(
+            // Define the default Brightness and Colors
+            brightness: Brightness.dark,
+            primaryColor: Colors.white,
+            accentColor: Colors.blue,
+
+            // Define the default Font Family
+            fontFamily: 'Montserrat'));
   }
 
   void vibrate() {
@@ -197,15 +200,18 @@ class HomePage extends State<MyApp> {
     }
     return subtotal * .15;
   }
+
   String getTip() {
     if (textMoneyFormatter != null) {
       return textMoneyFormatter.format(getTipNumber());
     }
     return getTipNumber().toString();
   }
+
   double getTotalNumber() {
     return getTipNumber() + subtotal;
   }
+
   String getTotal() {
     if (textMoneyFormatter != null) {
       return textMoneyFormatter.format(getTotalNumber());
@@ -213,11 +219,12 @@ class HomePage extends State<MyApp> {
     return getTotalNumber().toString();
   }
 
-  Future<String> getCountryCode() async{
+  Future<String> getCountryCode() async {
     if (position == null) {
       return "US";
     }
-    List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
+    List<Placemark> placemark = await Geolocator()
+        .placemarkFromCoordinates(position.latitude, position.longitude);
     return placemark[0].isoCountryCode;
   }
 }
