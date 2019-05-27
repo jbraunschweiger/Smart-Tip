@@ -47,7 +47,6 @@ class HomePage extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    Intl.
     getPosition().then((p) {
       position = p;
       getCountryCode().then((c) {
@@ -172,8 +171,6 @@ class HomePage extends State<MyApp> {
     HapticFeedback.vibrate();
     HapticFeedback.heavyImpact();
   }
-
-  Future<String> getLocale() async
 
   Future<String> getCountryCode() async{
     if (position == null) {
