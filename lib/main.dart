@@ -39,7 +39,7 @@ class HomePage extends State<MyApp> {
       position = p;
       getCountryCode().then((c) {
         country = c;
-        currencySymbol = NumberFormat.simpleCurrency(name: country).currencySymbol;
+        currencySymbol = NumberFormat.simpleCurrency(locale: country).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
       });
     });
@@ -47,12 +47,11 @@ class HomePage extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    Intl.
     getPosition().then((p) {
       position = p;
       getCountryCode().then((c) {
         country = c;
-        currencySymbol = NumberFormat.simpleCurrency(name: country).currencySymbol;
+        currencySymbol = NumberFormat.simpleCurrency(locale: country).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
       });
     });
@@ -172,8 +171,6 @@ class HomePage extends State<MyApp> {
     HapticFeedback.vibrate();
     HapticFeedback.heavyImpact();
   }
-
-  Future<String> getLocale() async
 
   Future<String> getCountryCode() async{
     if (position == null) {
