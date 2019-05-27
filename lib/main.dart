@@ -17,12 +17,16 @@ class MyApp extends StatefulWidget {
 
 class HomePage extends State<MyApp> {
   double subtotal;
+  double tipPercent;
+  double tip;
+  double total;
   double restaurantPrice = 0.0;
   static String countryCode = "US";
   static List<String> countryData;
   static String currencySymbol = "\$";
-  TextEditingController moneyFormatter;
+  MoneyMaskedTextController moneyFormatter;
   var satisfactionFlex = [3, 4, 3, 3];
+  static int happiness;
 
   Geolocator geolocator = Geolocator();
   Position position;
@@ -47,24 +51,15 @@ class HomePage extends State<MyApp> {
         var _locale = Helper.getLocale(countryCode);
         currencySymbol = NumberFormat.simpleCurrency(locale: _locale).currencySymbol;
         moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
+        moneyFormatter.addListener((){
+          subtotal = moneyFormatter.numberValue;
+        });
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    getPosition().then((p) {
-      position = p;
-      getCountryCode().then((cc) {
-        countryCode = cc;
-        countryData = Helper.getCountryData(countryCode);
-        var _locale = Helper.getLocale(countryCode);
-        print("Country code is: " + countryCode);
-        print("Locale is: " + _locale);
-        currencySymbol = NumberFormat.simpleCurrency(locale: _locale).currencySymbol;
-        moneyFormatter = new MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator:',', leftSymbol: currencySymbol);
-      });
-    });
     return MaterialApp(
       title: 'Flutter',
       home: Scaffold(
@@ -115,6 +110,7 @@ class HomePage extends State<MyApp> {
                         onTap: () {
                           setState(() {
                             satisfactionFlex = [4, 3, 3, 3];
+                            happiness = -2;
                             vibrate();
                           });
                         },
@@ -128,6 +124,7 @@ class HomePage extends State<MyApp> {
                             onTap: () {
                               setState(() {
                                 satisfactionFlex = [3, 4, 3, 3];
+                                happiness = -1;
                                 vibrate();
                               });
                             },
@@ -141,6 +138,7 @@ class HomePage extends State<MyApp> {
                             onTap: () {
                               setState(() {
                                 satisfactionFlex = [3, 3, 4, 3];
+                                happiness = 1;
                                 vibrate();
                               });
                             },
@@ -154,6 +152,7 @@ class HomePage extends State<MyApp> {
                             onTap: () {
                               setState(() {
                                 satisfactionFlex = [3, 3, 3, 4];
+                                happiness = 2;
                                 vibrate();
                               });
                             },
@@ -163,7 +162,7 @@ class HomePage extends State<MyApp> {
                   ]
                 ),
                 Text(
-                  "HELLO"
+                  "Tip: " + subtotal.toString()
                 )
               ],
             ),
@@ -179,6 +178,10 @@ class HomePage extends State<MyApp> {
   void vibrate() {
     HapticFeedback.vibrate();
     HapticFeedback.heavyImpact();
+  }
+
+  void getTip() {
+
   }
 
   Future<String> getCountryCode() async{

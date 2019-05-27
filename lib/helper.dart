@@ -44,7 +44,6 @@ class Helper {
     RegExp exp = new RegExp("($countryCode.{1,})");
     Iterable<Match> matches = exp.allMatches(_localeData);
     String substring = "";
-    print("Data: " + _localeData);
     for(Match s in matches){
       substring = _localeData.substring(s.start,s.end);
     }
