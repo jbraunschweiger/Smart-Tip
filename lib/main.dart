@@ -4,6 +4,7 @@ import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MyApp());
@@ -191,6 +192,18 @@ class HomePage extends State<MyApp> {
   void vibrate() {
     HapticFeedback.vibrate();
     HapticFeedback.heavyImpact();
+  }
+
+  void addToDatabase() async {
+    await Firestore.instance
+    .collection("Tips")
+    .add({
+      "Country Code": "XX",
+      "Location": 4,
+      "Subtotal": 5,
+      "Time": 5,
+      "Tip Amount": 5,
+    });
   }
 
   double getTipNumber() {
