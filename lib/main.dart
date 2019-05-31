@@ -250,7 +250,6 @@ class HomePage extends State<MyApp> {
     HapticFeedback.heavyImpact();
   }
 
-<<<<<<< HEAD
   void addToDatabase() async {
     await Firestore.instance
     .collection("Tips")
@@ -262,11 +261,7 @@ class HomePage extends State<MyApp> {
       "Tip Amount": 5,
     });
   }
-
-  double getTipNumber() {
-=======
   double getTipPercentNumber() {
->>>>>>> 9b3a168faf62c3ef1d34c2ff68fa6b9e695eb54f
     if (countryData != null) {
       double tipPercent = Helper.getTip(happiness, countryData) / 100;
       return tipPercent;
