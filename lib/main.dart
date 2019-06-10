@@ -19,6 +19,7 @@ class MyApp extends StatefulWidget {
 
 class HomePage extends State<MyApp> {
   double subtotal = 0.0;
+  double alternative = 0.0;
   double restaurantPrice = 0.0;
   static String countryCode = "US";
   static String _locale = "en-US";
@@ -26,11 +27,16 @@ class HomePage extends State<MyApp> {
   static String currencySymbol = "\$";
   MoneyMaskedTextController moneyFormatter;
   NumberFormat textMoneyFormatter;
+
+  MoneyMaskedTextController alternateMoneyFormatter;
   var satisfactionFlex = [3, 4, 3, 3];
   static int happiness = 2;
 
   Geolocator geolocator = Geolocator();
   Position position;
+
+  bool feedbackInteracted = false;
+  bool feedbackRequired = true;
 
   Future<Position> getPosition() async {
     try {
@@ -63,6 +69,15 @@ class HomePage extends State<MyApp> {
             subtotal = moneyFormatter.numberValue;
           });
         });
+        alternateMoneyFormatter = MoneyMaskedTextController(
+            decimalSeparator: '.',
+            thousandSeparator: ',',
+            leftSymbol: currencySymbol);
+        alternateMoneyFormatter.addListener(() {
+          this.setState(() {
+            alternative = alternateMoneyFormatter.numberValue;
+          });
+        });
         this.setState(() {});
       });
     });
@@ -78,8 +93,7 @@ class HomePage extends State<MyApp> {
         home: Scaffold(
           resizeToAvoidBottomPadding: false,
           body: Container(
-              decoration:
-                  BoxDecoration(color: accent),
+              decoration: BoxDecoration(color: accent),
               child: Container(
                 margin: const EdgeInsets.only(
                     left: 10, right: 10, top: 10, bottom: 10),
@@ -90,7 +104,7 @@ class HomePage extends State<MyApp> {
                       Container(
                           padding: const EdgeInsets.only(
                               left: 10, right: 10, top: 40, bottom: 40),
-                          margin: const EdgeInsets.only (top: 110, bottom: 10),
+                          margin: const EdgeInsets.only(top: 50, bottom: 10),
                           decoration: BoxDecoration(
                             color: Color.fromARGB(255, 255, 255, 255),
                             borderRadius:
@@ -114,8 +128,7 @@ class HomePage extends State<MyApp> {
                       Container(
                           padding: const EdgeInsets.only(
                               left: 10, right: 10, top: 40, bottom: 40),
-
-                          margin: const EdgeInsets.only (top: 10, bottom: 10),
+                          margin: const EdgeInsets.only(top: 10, bottom: 10),
                           decoration: BoxDecoration(
                             color: Color.fromARGB(255, 255, 255, 255),
                             borderRadius:
@@ -179,7 +192,7 @@ class HomePage extends State<MyApp> {
                       Container(
                           padding: const EdgeInsets.only(
                               left: 10, right: 10, top: 20, bottom: 20),
-                          margin: const EdgeInsets.only (top: 10, bottom: 10),
+                          margin: const EdgeInsets.only(top: 10, bottom: 10),
                           decoration: BoxDecoration(
                             color: Color.fromARGB(255, 255, 255, 255),
                             borderRadius:
@@ -230,7 +243,9 @@ class HomePage extends State<MyApp> {
                                               fontWeight: FontWeight.bold,
                                               fontSize: defaultFontSize)),
                                     ]),
-                              ]))
+                              ])),
+                      getContainer(primary, accent, defaultFontSize)
+
                     ],
                   ),
                 ),
@@ -250,17 +265,103 @@ class HomePage extends State<MyApp> {
     HapticFeedback.heavyImpact();
   }
 
-  void addToDatabase() async {
-    await Firestore.instance
-    .collection("Tips")
-    .add({
-      "Country Code": "XX",
-      "Location": 4,
-      "Subtotal": 5,
-      "Time": 5,
-      "Tip Amount": 5,
+  void addToDatabase(String postalCode) async {
+    print("submitting");
+    DateTime now = DateTime.now();
+    double time = now.hour * 60.0 + now.minute;
+    await Firestore.instance.collection("Tips").add({
+      "Country Code": countryCode,
+      "Location": postalCode,
+      "Subtotal": subtotal,
+      "Time": time,
+      "Tip Amount": alternative,
     });
   }
+
+  Widget getContainer(Color primary, Color accent, double defaultFontSize) {
+    if (feedbackInteracted && !feedbackRequired) {
+      return Container();
+    }
+    return Container(
+        padding: const EdgeInsets.only(
+            left: 10, right: 10, top: 20, bottom: 20),
+        margin: const EdgeInsets.only(top: 10, bottom: 10),
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 255, 255, 255),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(5.0)),
+        ),
+        child: getFeedbackButton(
+            primary, accent, defaultFontSize));
+  }
+
+  Widget getFeedbackButton(
+      Color primary, Color accent, double defaultFontSize) {
+    if (!feedbackInteracted) {
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text("Do You Agree?",
+                style: TextStyle(fontSize: defaultFontSize - 5,
+                    fontWeight: FontWeight.bold,color: primary)),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+              MaterialButton(
+                child: Text('Yes'),
+                color: accent,
+                colorBrightness: Brightness.dark,
+                onPressed: () {
+                  feedbackInteracted = true;
+                  feedbackRequired = false;
+                  this.setState(() {});
+                },
+              ),
+              MaterialButton(
+                child: Text('No'),
+                color: accent,
+                colorBrightness: Brightness.dark,
+                onPressed: () {
+                  feedbackInteracted = true;
+                  feedbackRequired = true;
+                  this.setState(() {});
+                },
+              )
+            ])
+          ]);
+    }
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text("How much did you tip?",
+                style: TextStyle(fontSize: defaultFontSize - 5,
+                    fontWeight: FontWeight.bold,color: primary)),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+              Flexible(
+                flex: 1,
+               child: TextField(
+                keyboardType: TextInputType.number,
+                controller: alternateMoneyFormatter,
+                cursorWidth: 0,
+
+                style: TextStyle(
+                    fontSize: defaultFontSize, color: primary),
+                )),
+              MaterialButton(
+                child: Text('Submit'),
+                color: accent,
+                colorBrightness: Brightness.dark,
+                onPressed: () {
+                getPostalCode().then((pc) {
+                  addToDatabase(pc);
+                });
+                  feedbackInteracted = true;
+                  feedbackRequired = false;
+                  this.setState(() {});
+                },
+              )
+            ])
+          ]);
+  }
+
   double getTipPercentNumber() {
     if (countryData != null) {
       double tipPercent = Helper.getTip(happiness, countryData) / 100;
@@ -303,5 +404,13 @@ class HomePage extends State<MyApp> {
     List<Placemark> placemark = await Geolocator()
         .placemarkFromCoordinates(position.latitude, position.longitude);
     return placemark[0].isoCountryCode;
+  }
+  Future<String> getPostalCode() async {
+    if (position == null) {
+      return "US";
+    }
+    List<Placemark> placemark = await Geolocator()
+        .placemarkFromCoordinates(position.latitude, position.longitude);
+    return placemark[0].postalCode;
   }
 }
