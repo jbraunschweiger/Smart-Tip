@@ -30,7 +30,7 @@ class HomePage extends State<MyApp> {
 
   MoneyMaskedTextController alternateMoneyFormatter;
   var satisfactionFlex = [3, 4, 3, 3];
-  static int happiness = 2;
+  static int happiness = -1;
 
   Geolocator geolocator = Geolocator();
   Position position;
@@ -245,7 +245,6 @@ class HomePage extends State<MyApp> {
                                     ]),
                               ])),
                       getContainer(primary, accent, defaultFontSize)
-
                     ],
                   ),
                 ),
@@ -269,12 +268,17 @@ class HomePage extends State<MyApp> {
     print("submitting");
     DateTime now = DateTime.now();
     double time = now.hour * 60.0 + now.minute;
+    print(countryCode);
+    print(postalCode);
+    print(subtotal);
+    print(time);
+    print(getTipPercentNumber());
     await Firestore.instance.collection("Tips").add({
       "Country Code": countryCode,
       "Location": postalCode,
       "Subtotal": subtotal,
       "Time": time,
-      "Tip Amount": alternative,
+      "Tip Amount": getTipPercentNumber(),
     });
   }
 
@@ -283,16 +287,14 @@ class HomePage extends State<MyApp> {
       return Container();
     }
     return Container(
-        padding: const EdgeInsets.only(
-            left: 10, right: 10, top: 20, bottom: 20),
+        padding:
+            const EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
         margin: const EdgeInsets.only(top: 10, bottom: 10),
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 255, 255, 255),
-          borderRadius:
-          new BorderRadius.all(new Radius.circular(5.0)),
+          borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
         ),
-        child: getFeedbackButton(
-            primary, accent, defaultFontSize));
+        child: getFeedbackButton(primary, accent, defaultFontSize));
   }
 
   Widget getFeedbackButton(
@@ -302,8 +304,10 @@ class HomePage extends State<MyApp> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text("Do You Agree?",
-                style: TextStyle(fontSize: defaultFontSize - 5,
-                    fontWeight: FontWeight.bold,color: primary)),
+                style: TextStyle(
+                    fontSize: defaultFontSize - 5,
+                    fontWeight: FontWeight.bold,
+                    color: primary)),
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
               MaterialButton(
                 child: Text('Yes'),
@@ -320,6 +324,7 @@ class HomePage extends State<MyApp> {
                 color: accent,
                 colorBrightness: Brightness.dark,
                 onPressed: () {
+                  alternative = getTipPercentNumber();
                   feedbackInteracted = true;
                   feedbackRequired = true;
                   this.setState(() {});
@@ -328,41 +333,55 @@ class HomePage extends State<MyApp> {
             ])
           ]);
     }
-      return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text("How much did you tip?",
-                style: TextStyle(fontSize: defaultFontSize - 5,
-                    fontWeight: FontWeight.bold,color: primary)),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              Flexible(
-                flex: 1,
-               child: TextField(
-                keyboardType: TextInputType.number,
-                controller: alternateMoneyFormatter,
-                cursorWidth: 0,
-
-                style: TextStyle(
-                    fontSize: defaultFontSize, color: primary),
-                )),
-              MaterialButton(
-                child: Text('Submit'),
-                color: accent,
-                colorBrightness: Brightness.dark,
-                onPressed: () {
-                getPostalCode().then((pc) {
-                  addToDatabase(pc);
-                });
-                  feedbackInteracted = true;
-                  feedbackRequired = false;
-                  this.setState(() {});
-                },
-              )
-            ])
-          ]);
+    return Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+      Text("How much did you tip?",
+          style: TextStyle(
+              fontSize: defaultFontSize - 5,
+              fontWeight: FontWeight.bold,
+              color: primary)),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        MaterialButton(
+          child: Text('-'),
+          color: accent,
+          colorBrightness: Brightness.dark,
+          onPressed: () {
+            alternative -= 0.005;
+            if (alternative < 0) {
+              alternative = 0;
+            }
+            this.setState(() {});
+          },
+        ),
+        MaterialButton(
+          child: Text('+'),
+          color: accent,
+          colorBrightness: Brightness.dark,
+          onPressed: () {
+            alternative += 0.005;
+            this.setState(() {});
+          },
+        ),
+        MaterialButton(
+          child: Text('Submit'),
+          color: accent,
+          colorBrightness: Brightness.dark,
+          onPressed: () {
+            getPostalCode().then((pc) {
+              addToDatabase(pc);
+            });
+            feedbackInteracted = true;
+            feedbackRequired = false;
+            this.setState(() {});
+          },
+        )
+      ])
+    ]);
   }
 
   double getTipPercentNumber() {
+    if (feedbackInteracted) {
+      return alternative;
+    }
     if (countryData != null) {
       double tipPercent = Helper.getTip(happiness, countryData) / 100;
       return tipPercent;
@@ -405,6 +424,7 @@ class HomePage extends State<MyApp> {
         .placemarkFromCoordinates(position.latitude, position.longitude);
     return placemark[0].isoCountryCode;
   }
+
   Future<String> getPostalCode() async {
     if (position == null) {
       return "US";
