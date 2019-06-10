@@ -264,18 +264,20 @@ class HomePage extends State<MyApp> {
     HapticFeedback.heavyImpact();
   }
 
-  void addToDatabase(String postalCode) async {
+  void addToDatabase(Placemark pos) async {
     print("submitting");
     DateTime now = DateTime.now();
     double time = now.hour * 60.0 + now.minute;
     print(countryCode);
-    print(postalCode);
+    print(pos.postalCode);
     print(subtotal);
     print(time);
     print(getTipPercentNumber());
     await Firestore.instance.collection("Tips").add({
       "Country Code": countryCode,
-      "Location": postalCode,
+      "Location": pos.postalCode,
+      "Latitude": pos.position.latitude,
+      "Longitude": pos.position.longitude,
       "Subtotal": subtotal,
       "Time": time,
       "Tip Amount": getTipPercentNumber(),
@@ -366,8 +368,8 @@ class HomePage extends State<MyApp> {
           color: accent,
           colorBrightness: Brightness.dark,
           onPressed: () {
-            getPostalCode().then((pc) {
-              addToDatabase(pc);
+            getPosition().then((pos) {
+              addToDatabase(pos);
             });
             feedbackInteracted = true;
             feedbackRequired = false;
@@ -425,12 +427,12 @@ class HomePage extends State<MyApp> {
     return placemark[0].isoCountryCode;
   }
 
-  Future<String> getPostalCode() async {
+  Future<Placemark> getPlacemark() async {
     if (position == null) {
-      return "US";
+      return null;
     }
     List<Placemark> placemark = await Geolocator()
         .placemarkFromCoordinates(position.latitude, position.longitude);
-    return placemark[0].postalCode;
+    return placemark[0];
   }
 }
