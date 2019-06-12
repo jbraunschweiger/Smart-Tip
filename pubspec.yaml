@@ -55,6 +55,7 @@ flutter:
     - graphics/
     - assets/res/countries.csv
     - assets/res/fucking_locales.csv
+    - assets/appdata.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

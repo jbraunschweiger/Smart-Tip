@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MyApp());
+  Helper.checkTutorial();
 }
 
 class MyApp extends StatefulWidget {
