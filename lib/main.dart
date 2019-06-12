@@ -281,6 +281,7 @@ class HomePage extends State<MyApp> {
       "Subtotal": subtotal,
       "Time": time,
       "Tip Amount": getTipPercentNumber(),
+      "Type": "restaurant",
     });
   }
 
@@ -368,7 +369,7 @@ class HomePage extends State<MyApp> {
           color: accent,
           colorBrightness: Brightness.dark,
           onPressed: () {
-            getPosition().then((pos) {
+            getPlacemark().then((pos) {
               addToDatabase(pos);
             });
             feedbackInteracted = true;
