@@ -28,7 +28,6 @@ class HomePage extends State<MyApp> {
   MoneyMaskedTextController moneyFormatter;
   NumberFormat textMoneyFormatter;
 
-  MoneyMaskedTextController alternateMoneyFormatter;
   var satisfactionFlex = [3, 4, 3, 3];
   static int happiness = -1;
 
@@ -60,26 +59,32 @@ class HomePage extends State<MyApp> {
         _locale = Helper.getLocale(countryCode);
         textMoneyFormatter = NumberFormat.simpleCurrency(locale: _locale);
         currencySymbol = textMoneyFormatter.currencySymbol;
-        moneyFormatter = MoneyMaskedTextController(
-            decimalSeparator: '.',
-            thousandSeparator: ',',
-            leftSymbol: currencySymbol);
-        moneyFormatter.addListener(() {
-          this.setState(() {
-            subtotal = moneyFormatter.numberValue;
-          });
-        });
-        alternateMoneyFormatter = MoneyMaskedTextController(
-            decimalSeparator: '.',
-            thousandSeparator: ',',
-            leftSymbol: currencySymbol);
-        alternateMoneyFormatter.addListener(() {
-          this.setState(() {
-            alternative = alternateMoneyFormatter.numberValue;
-          });
-        });
-        this.setState(() {});
+
+        initialize();
       });
+    });
+  }
+
+  void initialize() {
+    this.setState(() {
+      moneyFormatter = MoneyMaskedTextController(
+          decimalSeparator: '.',
+          thousandSeparator: ',',
+          leftSymbol: currencySymbol);
+      moneyFormatter.addListener(() {
+        this.setState(() {
+          subtotal = moneyFormatter.numberValue;
+        });
+      });
+
+      subtotal = 0.0;
+      alternative = 0.0;
+      restaurantPrice = 0.0;
+      satisfactionFlex = [3, 4, 3, 3];
+      happiness = -1;
+
+      feedbackInteracted = false;
+      feedbackRequired = true;
     });
   }
 
@@ -99,151 +104,141 @@ class HomePage extends State<MyApp> {
                     left: 10, right: 10, top: 10, bottom: 10),
                 child: Center(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                          padding: const EdgeInsets.only(
-                              left: 10, right: 10, top: 40, bottom: 40),
-                          margin: const EdgeInsets.only(top: 50, bottom: 10),
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            borderRadius:
-                                new BorderRadius.all(new Radius.circular(5.0)),
-                          ),
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            controller: moneyFormatter,
-                            cursorWidth: 0,
-                            style: TextStyle(
-                                fontSize: defaultFontSize, color: primary),
-                            decoration: InputDecoration(
-                              labelText: "Enter Subtotal",
-                              fillColor: Colors.white,
-                              border: new OutlineInputBorder(
-                                borderRadius: new BorderRadius.circular(25.0),
-                                borderSide: new BorderSide(),
-                              ),
-                            ),
-                          )),
-                      Container(
-                          padding: const EdgeInsets.only(
-                              left: 10, right: 10, top: 40, bottom: 40),
-                          margin: const EdgeInsets.only(top: 10, bottom: 10),
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            borderRadius:
-                                new BorderRadius.all(new Radius.circular(5.0)),
-                          ),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Flexible(
-                                    flex: satisfactionFlex[0],
-                                    child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            satisfactionFlex = [4, 3, 3, 3];
-                                            happiness = -2;
-                                            vibrate();
-                                          });
-                                        },
-                                        child: Image.asset(
-                                            "graphics/unhappy.png"))),
-                                Flexible(flex: 1, child: Container()),
-                                Flexible(
-                                    flex: satisfactionFlex[1],
-                                    child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            satisfactionFlex = [3, 4, 3, 3];
-                                            happiness = -1;
-                                            vibrate();
-                                          });
-                                        },
-                                        child: Image.asset(
-                                            "graphics/confused.png"))),
-                                Flexible(flex: 1, child: Container()),
-                                Flexible(
-                                    flex: satisfactionFlex[2],
-                                    child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            satisfactionFlex = [3, 3, 4, 3];
-                                            happiness = 1;
-                                            vibrate();
-                                          });
-                                        },
-                                        child: Image.asset(
-                                            "graphics/smiling.png"))),
-                                Flexible(flex: 1, child: Container()),
-                                Flexible(
-                                    flex: satisfactionFlex[3],
-                                    child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            satisfactionFlex = [3, 3, 3, 4];
-                                            happiness = 2;
-                                            vibrate();
-                                          });
-                                        },
-                                        child: Image.asset(
-                                            "graphics/in-love.png")))
-                              ])),
-                      Container(
-                          padding: const EdgeInsets.only(
-                              left: 10, right: 10, top: 20, bottom: 20),
-                          margin: const EdgeInsets.only(top: 10, bottom: 10),
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            borderRadius:
-                                new BorderRadius.all(new Radius.circular(5.0)),
-                          ),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Percent',
-                                          style: TextStyle(
-                                              color: accent,
-                                              fontSize: defaultFontSize)),
-                                      Text(getTipPercent(),
-                                          style: TextStyle(
-                                              color: primary,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: defaultFontSize)),
-                                    ]),
-                                Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Tip',
-                                          style: TextStyle(
-                                              color: accent,
-                                              fontSize: defaultFontSize)),
-                                      Text(getTip(),
-                                          style: TextStyle(
-                                              color: primary,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: defaultFontSize)),
-                                    ]),
-                                Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Total',
-                                          style: TextStyle(
-                                              color: accent,
-                                              fontSize: defaultFontSize)),
-                                      Text(getTotal(),
-                                          style: TextStyle(
-                                              color: primary,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: defaultFontSize)),
-                                    ]),
-                              ])),
+                      contain(Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Flexible(
+                                flex: 3,
+                                child: TextField(
+                                  keyboardType: TextInputType.number,
+                                  controller: moneyFormatter,
+                                  cursorWidth: 0,
+                                  style: TextStyle(
+                                      fontSize: defaultFontSize,
+                                      color: primary),
+                                  decoration: InputDecoration(
+                                    labelText: "Enter Subtotal",
+                                    fillColor: Colors.white,
+                                    border: new OutlineInputBorder(
+                                      borderRadius:
+                                          new BorderRadius.circular(25.0),
+                                      borderSide: new BorderSide(),
+                                    ),
+                                  ),
+                                )),
+                            Flexible(
+                              flex: 1,
+                              child: FlatButton(
+                                onPressed: () {
+                                  initialize();
+                                },
+
+                                child: Image.asset("graphics/refresh.png")
+                              )
+                            )
+                          ])),
+                      contain(Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Flexible(
+                                flex: satisfactionFlex[0],
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        satisfactionFlex = [4, 3, 3, 3];
+                                        happiness = -2;
+                                        vibrate();
+                                      });
+                                    },
+                                    child:
+                                        Image.asset("graphics/unhappy.png"))),
+                            Flexible(flex: 1, child: Container()),
+                            Flexible(
+                                flex: satisfactionFlex[1],
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        satisfactionFlex = [3, 4, 3, 3];
+                                        happiness = -1;
+                                        vibrate();
+                                      });
+                                    },
+                                    child:
+                                        Image.asset("graphics/confused.png"))),
+                            Flexible(flex: 1, child: Container()),
+                            Flexible(
+                                flex: satisfactionFlex[2],
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        satisfactionFlex = [3, 3, 4, 3];
+                                        happiness = 1;
+                                        vibrate();
+                                      });
+                                    },
+                                    child:
+                                        Image.asset("graphics/smiling.png"))),
+                            Flexible(flex: 1, child: Container()),
+                            Flexible(
+                                flex: satisfactionFlex[3],
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        satisfactionFlex = [3, 3, 3, 4];
+                                        happiness = 2;
+                                        vibrate();
+                                      });
+                                    },
+                                    child: Image.asset("graphics/in-love.png")))
+                          ])),
+                      contain(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Percent',
+                                      style: TextStyle(
+                                          color: accent,
+                                          fontSize: defaultFontSize)),
+                                  Text(getTipPercent(),
+                                      style: TextStyle(
+                                          color: primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: defaultFontSize)),
+                                ]),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Tip',
+                                      style: TextStyle(
+                                          color: accent,
+                                          fontSize: defaultFontSize)),
+                                  Text(getTip(),
+                                      style: TextStyle(
+                                          color: primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: defaultFontSize)),
+                                ]),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Total',
+                                      style: TextStyle(
+                                          color: accent,
+                                          fontSize: defaultFontSize)),
+                                  Text(getTotal(),
+                                      style: TextStyle(
+                                          color: primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: defaultFontSize)),
+                                ]),
+                          ])),
                       getContainer(primary, accent, defaultFontSize)
                     ],
                   ),
@@ -257,6 +252,18 @@ class HomePage extends State<MyApp> {
 
             // Define the default Font Family
             fontFamily: 'Montserrat'));
+  }
+
+  Widget contain(Widget w) {
+    return Container(
+        padding:
+            const EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
+        margin: const EdgeInsets.only(top: 10, bottom: 10),
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 255, 255, 255),
+          borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
+        ),
+        child: w);
   }
 
   void vibrate() {
@@ -289,15 +296,7 @@ class HomePage extends State<MyApp> {
     if (feedbackInteracted && !feedbackRequired) {
       return Container();
     }
-    return Container(
-        padding:
-            const EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
-        margin: const EdgeInsets.only(top: 10, bottom: 10),
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 255, 255, 255),
-          borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
-        ),
-        child: getFeedbackButton(primary, accent, defaultFontSize));
+    return contain(getFeedbackButton(primary, accent, defaultFontSize));
   }
 
   Widget getFeedbackButton(
