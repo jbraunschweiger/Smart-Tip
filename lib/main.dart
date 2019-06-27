@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:oktoast/oktoast.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,6 +38,7 @@ class HomePage extends State<MyApp> {
 
   bool feedbackInteracted = false;
   bool feedbackRequired = true;
+  bool toastAppeared = false;
 
   Future<Position> getPosition() async {
     try {
@@ -86,6 +88,7 @@ class HomePage extends State<MyApp> {
 
       feedbackInteracted = false;
       feedbackRequired = true;
+      toastAppeared = false;
     });
   }
 
@@ -94,7 +97,7 @@ class HomePage extends State<MyApp> {
     Color primary = Colors.black45;
     Color accent = Color.fromARGB(255, 165, 205, 196);
     double defaultFontSize = 28;
-    return MaterialApp(
+    Widget m = MaterialApp(
         title: 'Flutter',
         home: Scaffold(
           resizeToAvoidBottomPadding: false,
@@ -253,6 +256,15 @@ class HomePage extends State<MyApp> {
 
             // Define the default Font Family
             fontFamily: 'Montserrat'));
+    return OKToast(
+      backgroundColor: Color.fromARGB(255, 231, 164, 150),
+      textStyle: TextStyle(
+          fontSize: defaultFontSize - 5,
+          fontWeight: FontWeight.bold,
+          color: Color.fromARGB(255, 255, 255, 255)),
+      child: m
+    );
+
   }
 
   Widget contain(Widget w) {
@@ -387,6 +399,20 @@ class HomePage extends State<MyApp> {
     }
     if (countryData != null) {
       double tipPercent = Helper.getTip(happiness, countryData) / 100;
+      if (tipPercent == -.01){
+        if (!toastAppeared) {
+          toastAppeared = true;
+          showToast("No Data Available", position: ToastPosition.top);
+        }
+        return 0;
+      }
+      if (tipPercent < 0) {
+        if (!toastAppeared) {
+          toastAppeared = true;
+          showToast("Tip Not Expected", position: ToastPosition.top);
+        }
+        return -tipPercent;
+      }
       return tipPercent;
     }
     return .15;

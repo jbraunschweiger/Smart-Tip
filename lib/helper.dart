@@ -60,8 +60,7 @@ class Helper {
     int hasData = int.parse(data[3]);
     int expected = int.parse(data[1]);
     if(hasData == 0){
-      //TODO add popup for no data
-      return 0.0;
+      return -1.0;
     }
     if(tipRate == 0 && hasData == 1){
       return 0.0;
@@ -71,6 +70,9 @@ class Helper {
     }
     double variance = tipRate/7;
     tipRate += variance * happiness;
+    if(expected == 0) {
+      return -tipRate;
+    }
     return tipRate;
   }
 
